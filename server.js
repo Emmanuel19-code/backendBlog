@@ -5,6 +5,7 @@ const {connection} = require("./databaseConnection/connection")
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 require('dotenv').config()
+const errorHandler = require("./ErrorHandlers/errorHandler")
 
 mongoose.set('strictQuery', true);
 
@@ -14,7 +15,7 @@ const xss=require('xss-clean')
 const cors=require('cors')
 const mongoSanitize = require("express-mongo-sanitize")
 
-//app.use(errorHandler)
+app.use(errorHandler)
 app.use(cors())
 app.use(helmet())
 app.use(xss())
@@ -37,7 +38,7 @@ app.get("/",(req,res)=>{
 
 
 
-
+app.use(errorHandler)
 app.listen(Port,()=>{
     console.log("server running on port ");
 })

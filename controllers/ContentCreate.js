@@ -65,6 +65,21 @@ const SpecifiedContent = tryCatch(
     }
 )
 
+const getCategoryContent = tryCatch(
+    async(req,res)=>{
+        const {name} = req.params;
+        console.log(name);
+        const categoryContent = await Blogcontents.findOne({name})
+        if(!categoryContent){
+            return res.status(StatusCodes.NOT_FOUND).json({
+                msg:"Content unavailable"
+            })
+        }
+        res.status(StatusCodes.OK).json({
+            content:categoryContent
+        })
+    }
+)
 
 const DeleteContent = tryCatch(
     async (req,res)=>{
@@ -148,6 +163,44 @@ const updateDraftContent = tryCatch(
     }
 )
 
+const getDraftContent = tryCatch(
+    async(req,res)=>{
+        const draftContent = await Draftcontents.find();
+        if(!draftContent){
+            return res.status(StatusCodes.NOT_FOUND).json({
+                msg:"There are no saved drafts"
+            })
+        }
+        res.status(StatusCodes.OK).json({
+            content:draftContent
+        })
+    }
+)
+
+
+const PublishSavedDraft = tryCatch(
+    async (req,res)=>{
+        const {id} = req.params
+       const draftContent = await Draftcontents.findOne({id})
+       const publish = await Blogcontents.create({
+           title:draftContent.title,
+           category:draftContent.category,
+           image:draftContent.image,
+           content:draftContent.content,
+           createdBy:draftContent.createdBy
+       })
+       if(!publish){
+         return res.status(StatusCodes.BAD_REQUEST).json({
+            msg:"Content could not be published"
+         })
+       }
+      const del= await Draftcontents.deleteOne({id})
+       res.status(StatusCodes.OK).json({
+         msg:"Content has been published"
+       })
+    }
+)
+
 module.exports ={
     PostContent,
     updateContent,
@@ -155,5 +208,8 @@ module.exports ={
     DeleteContent,
     SaveDraftContent,
     DeleteDraftContent,
-    updateDraftContent
+    updateDraftContent,
+    getCategoryContent,
+    getDraftContent,
+    PublishSavedDraft
 }

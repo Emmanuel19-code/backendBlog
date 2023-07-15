@@ -8,11 +8,11 @@ const { VerifyUser } = require("../middleware/authentication");
 
 
 
-router.post("/register",upload.single("image"),SignUp)
+router.post("/register",upload.single("fileimage"),SignUp)
 router.post("/user-verification",VerifyUser,VerifyAccount)
 router.post("/login",Login)
 router.post("/forgot-password",ForgotPassword)
 router.post("/newPassword",VerifyUser,createNewPassword)
-router.post("/logOut",LogOut)
+router.get("/logOut",LogOut)
 
 module.exports = router

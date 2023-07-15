@@ -2,6 +2,7 @@ const tryCatch = require("../ErrorHandlers/TryCatch");
 const storeOTP = require("../models/OtpSchema");
 const user = require("../models/UsherSchema")
 const { StatusCodes } = require('http-status-codes');
+const { sendOneTimePassword } = require("../utils/MailNotification");
 
 
 const SignUp = tryCatch(
@@ -31,16 +32,21 @@ const SignUp = tryCatch(
                 msg:"Could not create please try again"
             })
         }
-        const token = userCreated.createJWT();
+        
         const OTP = userCreated.GenerateOTP();
         const createOTP = await storeOTP.create({
             owner:userCreated.uniqueId,
             otpvalue:OTP
         })
+        sendOneTimePassword({
+            name:userCreated.name,
+            email:userCreated.email,
+            verificationToken:OTP
+        })
+        const token = userCreated.createJWT();
         res.cookie("otpcookie",token)
         res.status(StatusCodes.CREATED).json({
-            msg:"User created",
-            otp:OTP
+            msg:"User created"
         })
     }
 )
@@ -50,7 +56,7 @@ const VerifyAccount= tryCatch(
     async (req,res) =>{
         const {otp} = req.body
         const userId = req.user.uniqueId
-        if(!user){
+        if(!userId){
             return res.status(StatusCodes.BAD_REQUEST).json({
                 msg:"Please this user does not exist"
             })
@@ -58,18 +64,19 @@ const VerifyAccount= tryCatch(
       const isUser = await storeOTP.findOne({userId})
       if(!isUser){
         return res.status(StatusCodes.BAD_REQUEST).json({
-            msg:"Please user does not exist"
+            msg:"Please Request a new OTP"
         })
       }
      const isMatch = await isUser.compareToken(otp)
       if(!isMatch){
-        res.status(StatusCodes.BAD_REQUEST).json({
+       return res.status(StatusCodes.BAD_REQUEST).json({
             msg:"Invalid token"
         })
       }
-      const verifiedUser = await user.findOne({user})
+      const verifiedUser = await user.findOne({userId})
       verifiedUser.verified = true
       verifiedUser.save()
+      res.cookie("optcookie","")
       res.status(StatusCodes.OK).json({
         msg:"You have been verified successfully"
       })
@@ -100,7 +107,8 @@ const Login = tryCatch(
         res.cookie("token",token)
         res.status(StatusCodes.OK).json({
             username:username,
-            uniqueId:isUser.uniqueId
+            uniqueId:isUser.uniqueId,
+            profilePicture:username.profilePicture
         })
     }
 )
@@ -131,7 +139,7 @@ const ForgotPassword = tryCatch(
 const createNewPassword = tryCatch(
     async (req,res)=>{
         const {newpassword} = req.body
-        const uniqueId = req.user.uniqueId
+        const uniqueId= req.user.uniqueId
         if(!newpassword){
             return res.status(StatusCodes.BAD_REQUEST).json({
                 msg:"field cannot be empty"
@@ -142,11 +150,11 @@ const createNewPassword = tryCatch(
        if(isMatch){
         return res.status(StatusCodes.BAD_REQUEST).json({
             msg:"New password and old cannot be the same",
-            isMatch:isMatch
         })
        }
        isUser.password = newpassword
        isUser.save()
+       res.cookie("optcookie","")
        res.status(StatusCodes.CREATED).json({
         msg:"Password has been updated successfully"
        })
