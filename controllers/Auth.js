@@ -8,11 +8,11 @@ const { sendOneTimePassword } = require("../utils/MailNotification");
 const SignUp = tryCatch(
     async (req,res) =>{
         const {name,email,password,username} = req.body
+        console.log(req.body);
          if(!name || !email || !password || !username){
             return res.status(StatusCodes.BAD_REQUEST).json({
                 msg:"Please Provide the missing detail"
-            })
-            
+            })   
          }
        const isUsername = await user.findOne({username})
        const isEmail = await user.findOne({email})
@@ -46,7 +46,8 @@ const SignUp = tryCatch(
         const token = userCreated.createJWT();
         res.cookie("otpcookie",token)
         res.status(StatusCodes.CREATED).json({
-            msg:"User created"
+            msg:"User created",
+            otp:OTP
         })
     }
 )
@@ -54,6 +55,7 @@ const SignUp = tryCatch(
 
 const VerifyAccount= tryCatch(
     async (req,res) =>{
+        console.log(req.body);
         const {otp} = req.body
         const userId = req.user.uniqueId
         if(!userId){
@@ -61,13 +63,20 @@ const VerifyAccount= tryCatch(
                 msg:"Please this user does not exist"
             })
         }
+        if(otp.length<4){
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                msg:"otp invalid"
+            })
+        }
       const isUser = await storeOTP.findOne({userId})
+      console.log(isUser);
       if(!isUser){
         return res.status(StatusCodes.BAD_REQUEST).json({
             msg:"Please Request a new OTP"
         })
       }
      const isMatch = await isUser.compareToken(otp)
+     console.log(isMatch);
       if(!isMatch){
        return res.status(StatusCodes.BAD_REQUEST).json({
             msg:"Invalid token"
@@ -76,7 +85,7 @@ const VerifyAccount= tryCatch(
       const verifiedUser = await user.findOne({userId})
       verifiedUser.verified = true
       verifiedUser.save()
-      res.cookie("optcookie","")
+      res.cookie("otpcookie","")
       res.status(StatusCodes.OK).json({
         msg:"You have been verified successfully"
       })

@@ -19,8 +19,8 @@ OtpSchema.pre("save",async function(){
 })
 
 //function to  compare the OTP
-OtpSchema.methods.compareToken = async function (canditateToken) {
-  const isMatch = await bcrypt.compare(canditateToken, this.otpvalue)
+OtpSchema.methods.compareToken = async function (candidateToken) {
+  const isMatch = await bcrypt.compare(candidateToken, this.otpvalue)
   return isMatch
 }
 

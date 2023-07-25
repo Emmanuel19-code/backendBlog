@@ -195,6 +195,11 @@ const PublishSavedDraft = tryCatch(
          })
        }
       const del= await Draftcontents.deleteOne({id})
+      if(!del){
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            msg:"couldn't delete "
+        })
+      }
        res.status(StatusCodes.OK).json({
          msg:"Content has been published"
        })
