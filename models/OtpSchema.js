@@ -20,8 +20,13 @@ OtpSchema.pre("save",async function(){
 
 //function to  compare the OTP
 OtpSchema.methods.compareToken = async function (candidateToken) {
+  console.log(candidateToken);
   const isMatch = await bcrypt.compare(candidateToken, this.otpvalue)
   return isMatch
 }
+//UsherSchema.methods.comparePassword = async function (canditatePassword){
+//  const isMatch = await bcrypt.compare(canditatePassword,this.password)
+//  return isMatch
+//}
 
 module.exports = mongoose.model("storeOTP",OtpSchema)

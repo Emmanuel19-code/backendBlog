@@ -9,14 +9,21 @@ const errorHandler = require("./ErrorHandlers/errorHandler")
 
 mongoose.set('strictQuery', true);
 
+
+app.use(errorHandler)
+
 //security on packages
 const helmet=require('helmet')
 const xss=require('xss-clean')
 const cors=require('cors')
 const mongoSanitize = require("express-mongo-sanitize")
 
-app.use(errorHandler)
-app.use(cors())
+
+app.use(cors({
+  orign:["http://localhost:3000"],
+  methods:["POST,GET,PUT"],
+  credentials:true
+}))
 app.use(helmet())
 app.use(xss())
 app.use(mongoSanitize())

@@ -16,6 +16,28 @@ const Authentication = tryCatch(
 )
 
 
+const VerifyUser = tryCatch(
+  async (req,res,next)=>{
+    const authHeader=req.headers.authorization
+  if(!authHeader || !authHeader.startsWith('Bearer')){
+    res.json({msg:"authentication invalid"})
+  }
+  try {
+    if(authHeader){
+      const token=authHeader.split(' ')[1]
+      const payload=jwt.verify(token,process.env.JWT_SECRET)
+       req.user={ uniqueId: payload.uniqueId, username: payload.username}
+       console.log(req.user);
+       next()
+    }
+    
+  } catch (error) {
+     res.json({msg:"authentication invalid"})
+  }
+  }
+)
+
+
 const authorizePermision =tryCatch(
   async(req,res,next) =>{
    const role = req.user.role
@@ -29,14 +51,17 @@ const authorizePermision =tryCatch(
 ) 
 
 
+/*
 const VerifyUser = tryCatch(
   async (req,res,next)=>{
      const {otpcookie} = req.cookies
+     console.log(otpcookie);
      const payload = jwt.verify(otpcookie,process.env.JWT_SECRET)
      req.user = {uniqueId:payload.uniqueId,username:payload.username}
      next()
   }
 )
+*/
 
 const RequestNewPassword = tryCatch(
   async (req,res,next)=>{

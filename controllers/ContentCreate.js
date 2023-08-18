@@ -7,6 +7,7 @@ const Draftcontents = require("../models/DraftSchema")
 const PostContent = tryCatch(
     async (req,res)=>{
         const {title,image,category,content} = req.body;
+        console.log(req.body);
         const username = req.user.username
         if(!title || !category || !content){
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -103,12 +104,14 @@ const DeleteContent = tryCatch(
 const SaveDraftContent = tryCatch(
     async (req,res)=>{
         const {title,image,category,content} = req.body;
+        console.log(req.body);
         const username = req.user.username
-        if(!title || !category || !content){
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                msg:"Please provide the missing field"
-            })
-        }
+        console.log(username);
+       // if(!title || !category || !content){
+       //     return res.status(StatusCodes.BAD_REQUEST).json({
+       //         msg:"Please provide the missing field"
+       //     })
+       // }
         const saveContent = await Draftcontents.create({
             title:title,
             image:image,

@@ -10,6 +10,7 @@ const {
     PublishSavedDraft
 } = require("../controllers/ContentCreate");
 const { Authentication } = require("../middleware/authentication");
+const { VerifyUser } = require("../middleware/authentication");
 const router = express.Router();
 
 
@@ -18,14 +19,14 @@ const router = express.Router();
 
 
 
-router.post("/create",Authentication,PostContent)
-router.post("/publishDraftContent:id",Authentication,PublishSavedDraft)
-router.put("/updateContent:id",Authentication,updateContent)
-router.get("/getContent:id",Authentication,SpecifiedContent)
-router.delete("/deleteContent:id",Authentication,DeleteContent)
-router.post("/saveToDrafts",Authentication,SaveDraftContent)
+router.post("/create",VerifyUser,PostContent)
+router.post("/publishDraftContent:id",VerifyUser,PublishSavedDraft)
+router.put("/updateContent:id",updateContent)
+router.get("/getContent:id",SpecifiedContent)
+router.delete("/deleteContent:id",DeleteContent)
+router.post("/saveToDrafts",VerifyUser,SaveDraftContent)
 router.get("/getCategoryContent:name",getCategoryContent)//This route is for user 
-router.get("/draftContent",Authentication,getDraftContent)
+router.get("/draftContent",VerifyUser,getDraftContent)
 
 
 module.exports = router
