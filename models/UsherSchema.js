@@ -30,7 +30,7 @@ const UsherSchema = new mongoose.Schema({
         unique:true
     },
     profilePicture:{
-        type:String
+        type:Buffer
     },
     verified:{
       type:Boolean,

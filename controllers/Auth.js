@@ -5,52 +5,53 @@ const { StatusCodes } = require('http-status-codes');
 const { sendOneTimePassword } = require("../utils/MailNotification");
 const BadRequest = require("../ErrorHandlers/BadRequest");
 
+
 const SignUp = tryCatch(
     async (req,res) =>{
-        const {name,email,password,username} = req.body
+        const {name,email,password,username,profilePicture} = req.body
        console.log(req.body);
-        if(!name || !email || !password || !username){
-           return res.status(StatusCodes.BAD_REQUEST).json({
-               msg:"Please Provide the missing detail"
-           })   
-        }
-      const isUsername = await user.findOne({username:username})
-      const isEmail = await user.findOne({email:email})
-       if(isUsername){
-           return res.status(StatusCodes.BAD_REQUEST).json({
-               msg:"A user with this username exist"
-           })
-       }
-        if(isEmail){
-           return res.status(StatusCodes.BAD_REQUEST).json({
-               msg:"A user with this email exist"
-           })
-       }
-       const userCreated = await user.create(req.body)
-       if(!userCreated){
-           return res.status(StatusCodes.BAD_REQUEST).json({
-               msg:"Could not create please try again"
-           })
-       }
-       
-       const OTP = userCreated.GenerateOTP();
-       const createOTP = await storeOTP.create({
-           owner:userCreated.uniqueId,
-           otpvalue:OTP
-       })
-       sendOneTimePassword({
-           name:userCreated.name,
-           email:userCreated.email,
-           verificationToken:OTP
-       })
-       const token = userCreated.createJWT();
-       console.log(token);
-       res.cookie("otpcookie",token)
-        res.status(StatusCodes.CREATED).json({
-            msg:"User created",
-            otp:OTP,
-            otpcookie:token
-        })
+      if(!name || !email || !password || !username){
+         return res.status(StatusCodes.BAD_REQUEST).json({
+             msg:"Please Provide the missing detail"
+         })   
+      }
+     const isUsername = await user.findOne({username:username})
+     const isEmail = await user.findOne({email:email})
+     if(isUsername){
+         return res.status(StatusCodes.BAD_REQUEST).json({
+             msg:"A user with this username exist"
+         })
+     }
+      if(isEmail){
+         return res.status(StatusCodes.BAD_REQUEST).json({
+             msg:"A user with this email exist"
+         })
+     }
+     const userCreated = await user.create(req.body)
+     if(!userCreated){
+         return res.status(StatusCodes.BAD_REQUEST).json({
+             msg:"Could not create please try again"
+         })
+     }
+     
+     const OTP = userCreated.GenerateOTP();
+     const createOTP = await storeOTP.create({
+         owner:userCreated.uniqueId,
+         otpvalue:OTP
+     })
+     sendOneTimePassword({
+         name:userCreated.name,
+         email:userCreated.email,
+         verificationToken:OTP
+     })
+     const token = userCreated.createJWT();
+     console.log(token);
+     res.cookie("otpcookie",token)
+      res.status(StatusCodes.CREATED).json({
+          msg:"User created",
+          otp:OTP,
+          otpcookie:token
+      })
     }
 )
 
@@ -129,7 +130,7 @@ const Login = tryCatch(
         res.status(StatusCodes.OK).json({
             username:username,
             uniqueId:isUser.uniqueId,
-            profilePicture:username.profilePicture,
+            profilePicture:isUser.profilePicture,
             message:"Authentication Successful",
             token:token
         })

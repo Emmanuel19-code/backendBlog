@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const tryCatch = require("../ErrorHandlers/TryCatch")
+
 
 
 const connection = (uri) =>{

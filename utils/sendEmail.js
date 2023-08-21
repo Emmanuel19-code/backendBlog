@@ -6,7 +6,7 @@ const sendEmail = async ({ to, subject, html }) => {
   const transporter = nodemailer.createTransport(nodemailerConfig);
 
   return transporter.sendMail({
-    from: '"StarCLinic" generalproject4@gmail.com', // sender address
+    from: '"Emmanuel Blog" generalproject4@gmail.com', // sender address
     to,
     subject,
     html,

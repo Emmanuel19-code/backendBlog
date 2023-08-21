@@ -3,11 +3,9 @@ const tryCatch = require("../ErrorHandlers/TryCatch");
 const { StatusCodes } = require('http-status-codes');
 const Draftcontents = require("../models/DraftSchema")
 
-
 const PostContent = tryCatch(
     async (req,res)=>{
         const {title,image,category,content} = req.body;
-        console.log(req.body);
         const username = req.user.username
         if(!title || !category || !content){
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -51,37 +49,6 @@ const updateContent = tryCatch(
     }
 )
 
-const SpecifiedContent = tryCatch(
-    async (req,res)=>{
-        const {id} = req.params
-        const findContent = await Blogcontents.findOne({id})
-        if(!findContent){
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                msg:"Contents is no more available"
-            })
-        }
-        res.status(StatusCodes.OK).json({
-            content:findContent
-        })
-    }
-)
-
-const getCategoryContent = tryCatch(
-    async(req,res)=>{
-        const {name} = req.params;
-        console.log(name);
-        const categoryContent = await Blogcontents.findOne({name})
-        if(!categoryContent){
-            return res.status(StatusCodes.NOT_FOUND).json({
-                msg:"Content unavailable"
-            })
-        }
-        res.status(StatusCodes.OK).json({
-            content:categoryContent
-        })
-    }
-)
-
 const DeleteContent = tryCatch(
     async (req,res)=>{
         const {id} = req.params
@@ -100,18 +67,15 @@ const DeleteContent = tryCatch(
     }
 )
 
-
 const SaveDraftContent = tryCatch(
     async (req,res)=>{
         const {title,image,category,content} = req.body;
-        console.log(req.body);
         const username = req.user.username
-        console.log(username);
-       // if(!title || !category || !content){
-       //     return res.status(StatusCodes.BAD_REQUEST).json({
-       //         msg:"Please provide the missing field"
-       //     })
-       // }
+       if(!title){
+           return res.status(StatusCodes.BAD_REQUEST).json({
+               msg:"Please provide the missing field"
+           })
+       }
         const saveContent = await Draftcontents.create({
             title:title,
             image:image,
@@ -212,12 +176,10 @@ const PublishSavedDraft = tryCatch(
 module.exports ={
     PostContent,
     updateContent,
-    SpecifiedContent,
     DeleteContent,
     SaveDraftContent,
     DeleteDraftContent,
     updateDraftContent,
-    getCategoryContent,
     getDraftContent,
     PublishSavedDraft
 }

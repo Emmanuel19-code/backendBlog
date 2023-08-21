@@ -1,10 +1,10 @@
+require('dotenv').config()
 const express = require("express");
 const app = express()
 const Port = 5000 || process.env.PORT
 const {connection} = require("./databaseConnection/connection")
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
-require('dotenv').config()
 const errorHandler = require("./ErrorHandlers/errorHandler")
 
 mongoose.set('strictQuery', true);
@@ -32,10 +32,12 @@ app.use(cookieParser())
 
 //routes
 const authRoute = require("./routes/authRoute")
-const contentRoute =  require("./routes/contentRoute")
+const usercontentRoute =  require("./routes/userscontentRoute")
+const admincontentRoute = require("./routes/adminContent")
 
 app.use("/user",authRoute)
-app.use("/content",contentRoute)
+app.use("/content",usercontentRoute)
+app.use("/admin",admincontentRoute)
 
 app.get("/",(req,res)=>{
   res.json({

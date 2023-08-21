@@ -27,7 +27,6 @@ const VerifyUser = tryCatch(
       const token=authHeader.split(' ')[1]
       const payload=jwt.verify(token,process.env.JWT_SECRET)
        req.user={ uniqueId: payload.uniqueId, username: payload.username}
-       console.log(req.user);
        next()
     }
     

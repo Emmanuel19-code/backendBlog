@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const postId=uuidv4().split('-')[0]
 const ContentSchema = new mongoose.Schema({
-    Id:{
+    id:{
         type:String,
         default:postId
     },
@@ -18,7 +18,7 @@ const ContentSchema = new mongoose.Schema({
         required:[true,"please provide a category"]
     },
     image:{
-        type:String
+        type:Buffer
     },
     content:{
         type:String,
