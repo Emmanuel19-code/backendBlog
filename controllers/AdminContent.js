@@ -5,28 +5,28 @@ const Draftcontents = require("../models/DraftSchema")
 
 const PostContent = tryCatch(
     async (req,res)=>{
-        const {title,image,category,content} = req.body;
-        const username = req.user.username
-        if(!title || !category || !content){
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                msg:"Please provide the missing field"
-            })
-        }
-        const createContent = await Blogcontents.create({
-            title:title,
-            image:image,
-            category:category,
-            content:content,
-            createdBy:username
-        })
-        if(!createContent){
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                msg:"Content could not be published try again"
-            })
-        }
-        res.status(StatusCodes.CREATED).json({
-            msg:"You content has been uploaded"
-        })
+        const {title,category,content} = req.body;
+   //     const username = req.user.username
+   //     if(!title || !category || !content){
+   //         return res.status(StatusCodes.BAD_REQUEST).json({
+   //             msg:"Please provide the missing field"
+   //         })
+   //     }
+   //     const createContent = await Blogcontents.create({
+   //         title:title,
+   //         image:image,
+   //         category:category,
+   //         content:content,
+   //         createdBy:username
+   //     })
+   //     if(!createContent){
+   //         return res.status(StatusCodes.BAD_REQUEST).json({
+   //             msg:"Content could not be published try again"
+   //         })
+   //     }
+   //     res.status(StatusCodes.CREATED).json({
+   //         msg:"You content has been uploaded"
+   //     })
     }
 )
 

@@ -6,7 +6,7 @@ const {connection} = require("./databaseConnection/connection")
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const errorHandler = require("./ErrorHandlers/errorHandler")
-
+const upload =require("./utils/ImageUpload")
 mongoose.set('strictQuery', true);
 
 
@@ -19,11 +19,12 @@ const cors=require('cors')
 const mongoSanitize = require("express-mongo-sanitize")
 
 
-app.use(cors({
-  orign:["http://localhost:3000"],
-  methods:["POST,GET,PUT"],
-  credentials:true
-}))
+app.use(
+  cors({
+    credentials: true,
+    origin: "http://localhost:3000",
+  })
+);
 app.use(helmet())
 app.use(xss())
 app.use(mongoSanitize())
@@ -39,7 +40,7 @@ app.use("/user",authRoute)
 app.use("/content",usercontentRoute)
 app.use("/admin",admincontentRoute)
 
-app.get("/",(req,res)=>{
+app.post("/",(req,res)=>{
   res.json({
     msg:"hello"
   })

@@ -30,7 +30,7 @@ const UsherSchema = new mongoose.Schema({
         unique:true
     },
     profilePicture:{
-        type:Buffer
+        type:String
     },
     verified:{
       type:Boolean,
@@ -45,8 +45,8 @@ UsherSchema.pre('save',async function () {
   this.password = await bcrypt.hash(this.password,salt)
 })
 
-//creating a token
-UsherSchema.methods.createJWT = function () {
+//creating a accesstoken
+UsherSchema.methods.createAccessToken = function () {
   return jwt.sign(
     { uniqueId: this.uniqueId, username: this.username},
     process.env.JWT_SECRET,
@@ -56,6 +56,16 @@ UsherSchema.methods.createJWT = function () {
   )
 }
 
+//creating refresh tokens
+UsherSchema.methods.createRefreshToken = function (){
+  return jwt.sign(
+    { uniqueId: this.uniqueId, username: this.username},
+    process.env.REFRESH_TOKEN,
+    {
+      expiresIn: process.env.refreshExpiry,
+    }
+  )
+}
 
 
 //creating an otp
@@ -67,6 +77,7 @@ UsherSchema.methods.GenerateOTP = function (){
       }
       return otp
 }
+
 
 
 //comparing the function

@@ -4,17 +4,33 @@ const user = require("../models/UsherSchema");
 const { StatusCodes } = require('http-status-codes');
 const { sendOneTimePassword } = require("../utils/MailNotification");
 const BadRequest = require("../ErrorHandlers/BadRequest");
-
+const { checkPassword } = require("../utils/Checkpassword");
+const {emailValidation} = require("../utils/emailvalidator")
 
 const SignUp = tryCatch(
     async (req,res) =>{
         const {name,email,password,username,profilePicture} = req.body
-       console.log(req.body);
+          console.log(req.file);
       if(!name || !email || !password || !username){
          return res.status(StatusCodes.BAD_REQUEST).json({
              msg:"Please Provide the missing detail"
          })   
       }
+      const valid = emailValidation(email)
+      if(!valid){
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            msg:"Please provide a valid email"
+        })
+    }
+     const check = checkPassword(password)
+     if(!check){
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            msg1:"Password must have atleasts an uppercase letter",
+            msg2:"Passord must have at least a lowercase letter",
+            msg3:"Password must be a minimum of 8 characters",
+            msg4:"Passowrd must have the following characters (?=.*[@$!%*#?&])"
+        })
+     }
      const isUsername = await user.findOne({username:username})
      const isEmail = await user.findOne({email:email})
      if(isUsername){
@@ -33,7 +49,7 @@ const SignUp = tryCatch(
              msg:"Could not create please try again"
          })
      }
-     
+
      const OTP = userCreated.GenerateOTP();
      const createOTP = await storeOTP.create({
          owner:userCreated.uniqueId,
@@ -44,15 +60,14 @@ const SignUp = tryCatch(
          email:userCreated.email,
          verificationToken:OTP
      })
-     const token = userCreated.createJWT();
-     console.log(token);
+     const token = userCreated.createAccessToken();
      res.cookie("otpcookie",token)
       res.status(StatusCodes.CREATED).json({
           msg:"User created",
           otp:OTP,
           otpcookie:token
       })
-    }
+  }
 )
 
 
@@ -71,14 +86,12 @@ const VerifyAccount= tryCatch(
             })
         }
        const isUser = await storeOTP.findOne({uniqueId:userId})
-       console.log(isUser);
        if(!isUser){
          return res.status(StatusCodes.BAD_REQUEST).json({
              msg:"Please Request a new OTP"
          })
        }
       const isMatch = await isUser.compareToken(otp)
-      console.log(isMatch);
        if(!isMatch){
         return res.status(StatusCodes.BAD_REQUEST).json({
              msg:"Invalid token"
@@ -100,13 +113,12 @@ const VerifyAccount= tryCatch(
 const Login = tryCatch(
     async (req,res) =>{
         const {username,password} = req.body
-        console.log(req.body);
         if(!username || !password){
             return res.status(StatusCodes.BAD_REQUEST).json({
                 msg:"Please provide the information"
             })
         }
-        const isUser = await user.findOne({username:username})
+        const isUser = await user.findOne({username})
         if(!isUser){
             return res.status(StatusCodes.BAD_REQUEST).json({
                 msg:"User is not found"
@@ -123,8 +135,14 @@ const Login = tryCatch(
                 msg:"Please provide the correct details"
             })
         }
-        const token = isUser.createJWT();
-        res.cookie("token",token,{
+        const accesstoken = isUser.createAccessToken();
+        const refreshtoken = isUser.createRefreshToken();
+         res.cookie("accesstoken", accesstoken, {
+                     maxAge: 300000, // 5 minutes
+                    httpOnly: true,
+                });
+        res.cookie("refreshtoken",refreshtoken,{
+            maxAge:86400,
             httpOnly:true
         })
         res.status(StatusCodes.OK).json({
@@ -132,7 +150,7 @@ const Login = tryCatch(
             uniqueId:isUser.uniqueId,
             profilePicture:isUser.profilePicture,
             message:"Authentication Successful",
-            token:token
+            accesstoken:accesstoken
         })
     }
 )
@@ -165,7 +183,6 @@ const ForgotPassword = tryCatch(
 const createNewPassword = tryCatch(
     async (req,res)=>{
         const {newpassword} = req.body
-        console.log(newpassword);
         const uniqueId= req.user.uniqueId
         if(!newpassword){
             return res.status(StatusCodes.BAD_REQUEST).json({
@@ -199,7 +216,8 @@ const ChangeProfilePicture = tryCatch(
 
 const LogOut = tryCatch(
     async(req,res)=>{
-        res.cookie("token","");
+        res.cookie("accesstoken","");
+        res.cookie("refreshtoken","");
         res.status(StatusCodes.OK).json({
             msg:"You have been logged out"
         })

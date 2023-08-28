@@ -8,7 +8,8 @@ const { VerifyUser } = require("../middleware/authentication");
 
 
 
-router.post("/register",upload.single("fileimage"),SignUp)
+
+router.post("/register",SignUp,upload.single("profilePicture"))
 router.post("/user-verification",VerifyUser,VerifyAccount)
 router.post("/login",Login)
 router.post("/forgotpassword",ForgotPassword)

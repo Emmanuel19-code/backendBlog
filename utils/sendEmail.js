@@ -1,9 +1,10 @@
 const nodemailer = require('nodemailer');
 const nodemailerConfig = require('./nodeMailerConfig');
 
+
 const sendEmail = async ({ to, subject, html }) => {
- 
-  const transporter = nodemailer.createTransport(nodemailerConfig);
+  try {
+    const transporter = nodemailer.createTransport(nodemailerConfig);
 
   return transporter.sendMail({
     from: '"Emmanuel Blog" generalproject4@gmail.com', // sender address
@@ -11,6 +12,9 @@ const sendEmail = async ({ to, subject, html }) => {
     subject,
     html,
   });
+  } catch (error) {
+    console.log("An error occured could not send mail");
+  } 
 };
 
 module.exports = sendEmail;
